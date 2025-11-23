@@ -1,13 +1,13 @@
-import { config } from 'dotenv'
+import { config } from "dotenv";
 
-import { drizzle } from 'drizzle-orm/libsql'
-import { createClient } from '@libsql/client'
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
 
-import * as schema from './schema.ts'
+import * as schema from "./schema.ts";
 
-config()
+config();
 
 const client = createClient({
-  url: process.env.DATABASE_URL!,
-})
-export const db = drizzle(client, { schema })
+	url: process.env.DATABASE_URL!,
+});
+export const db = drizzle(client, { schema });
