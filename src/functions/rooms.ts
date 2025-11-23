@@ -360,14 +360,13 @@ export const drawNames = createServerFn({ method: 'POST' }).handler(
     // Initialize Resend client
     const resend = new Resend(env.RESEND_API_KEY)
 
-    // Send email to each participant with their assignment
-    const emailPromises = assignments.map(async (assignment) => {
+    const emailPayloads = assignments.map((assignment) => {
       const giftPreferences = assignment.receiverNote
-        ? `\n\n**Gift Preferences:**\n${assignment.receiverNote}`
+        ? `\n\nGift Preferences:\n${assignment.receiverNote}`
         : ''
 
-      await resend.emails.send({
-        from: 'Secret Santa <onboarding@resend.dev>',
+      return {
+        from: 'Secret Santa <noreply@santa.buncolak.com>',
         to: assignment.giverEmail,
         subject: `🎅 Secret Santa Assignment - ${room.name}`,
         html: `
@@ -380,18 +379,25 @@ export const drawNames = createServerFn({ method: 'POST' }).handler(
               <p style="font-size: 24px; font-weight: bold; color: #1f2937; margin: 10px 0;">
                 ${assignment.receiverName}
               </p>
-              ${giftPreferences ? `<div style="margin-top: 15px; padding: 15px; background-color: white; border-radius: 5px;">${giftPreferences.replace(/\n/g, '<br>')}</div>` : ''}
+              ${giftPreferences ? `<div style="padding: 15px; background-color: white; border-radius: 5px;">${giftPreferences.replace(/\n/g, '<br>')}</div>` : ''}
             </div>
             <p style="color: #6b7280; font-size: 14px;">
               Remember: Keep it a secret! 🤫
             </p>
           </div>
         `,
-      })
+      }
     })
 
-    // Wait for all emails to be sent
-    await Promise.all(emailPromises)
+    // batch email payloads into groups of 2 and wait one sec between each group
+    for (let i = 0; i < emailPayloads.length; i += 2) {
+      const batch = emailPayloads.slice(i, i + 2)
+      const results = await Promise.all(batch.map(async (payload) => {
+        return await resend.emails.send(payload)
+      }))
+      console.log("email results", results)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    }
 
     return {
       success: true,

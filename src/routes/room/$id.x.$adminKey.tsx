@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
+import { createFileRoute, useLocation, useNavigate, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -11,7 +11,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { getAdminRoom, drawNames } from '@/functions/rooms'
 import { toast } from 'sonner'
-import { Share2, Sparkles, ArrowRight } from 'lucide-react'
+import { Share2, Sparkles } from 'lucide-react'
 
 export const Route = createFileRoute('/room/$id/x/$adminKey')({
   component: AdminRoomPage,
@@ -31,6 +31,7 @@ export const Route = createFileRoute('/room/$id/x/$adminKey')({
 
 function AdminRoomPage() {
   const { id, adminKey } = Route.useParams()
+  const location = useLocation()
   const loaderData = Route.useLoaderData()
   const navigate = useNavigate()
   const router = useRouter()
@@ -63,7 +64,7 @@ function AdminRoomPage() {
     )
   }
 
-  const participantUrl = `${window.location.origin}/room/${id}`
+  const participantUrl = `${location.url.split('/x')[0]}`
 
   const handleShare = async () => {
     setIsSharing(true)
@@ -172,19 +173,6 @@ function AdminRoomPage() {
                             </p>
                           </div>
                         )}
-                        {loaderData.room.isDrawn && participant.assignedTo && (
-                          <div className="mt-3 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
-                            <div className="flex items-center gap-2 text-sm">
-                              <span className="text-muted-foreground">
-                                Secret Santa for:
-                              </span>
-                              <ArrowRight className="size-3 text-green-600 dark:text-green-400" />
-                              <span className="font-semibold text-green-700 dark:text-green-300">
-                                {participant.assignedTo.name}
-                              </span>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -233,7 +221,7 @@ function AdminRoomPage() {
               </CardTitle>
               <CardDescription className="text-green-600 dark:text-green-400">
                 All participants have been notified via email with their Secret
-                Santa assignments. You can see the assignments above.
+                Santa assignments.
               </CardDescription>
             </CardHeader>
           </Card>
