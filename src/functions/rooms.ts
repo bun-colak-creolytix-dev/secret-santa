@@ -379,7 +379,7 @@ export const drawNames = createServerFn({ method: 'POST' }).handler(
               <p style="font-size: 24px; font-weight: bold; color: #1f2937; margin: 10px 0;">
                 ${assignment.receiverName}
               </p>
-              ${giftPreferences ? `<div style="padding: 15px; background-color: white; border-radius: 5px;">${giftPreferences.replace(/\n/g, '<br>')}</div>` : ''}
+              ${giftPreferences ? `<div style="padding: 15px; background-color: white; border-radius: 5px;">${giftPreferences.replace(/\n/g, '')}</div>` : ''}
             </div>
             <p style="color: #6b7280; font-size: 14px;">
               Remember: Keep it a secret! 🤫

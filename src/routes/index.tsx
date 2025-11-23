@@ -12,7 +12,59 @@ import {
 } from '@/components/ui/card'
 import { createRoom } from '@/functions/rooms'
 
-export const Route = createFileRoute('/')({ component: Home })
+const SITE_URL = 'https://santa.buncolak.com'
+const OG_IMAGE = '/og-image.jpg'
+const HOME_TITLE = 'Secret Santa - Create Your Holiday Gift Exchange'
+const HOME_DESCRIPTION = 'Create a Secret Santa gift exchange group, invite friends, and let the elves handle the matching. Organize your holiday gift exchange effortlessly!'
+
+export const Route = createFileRoute('/')({
+  component: Home,
+  head: () => ({
+    meta: [
+      {
+        title: HOME_TITLE,
+      },
+      {
+        name: 'description',
+        content: HOME_DESCRIPTION,
+      },
+      {
+        property: 'og:title',
+        content: HOME_TITLE,
+      },
+      {
+        property: 'og:description',
+        content: HOME_DESCRIPTION,
+      },
+      {
+        property: 'og:image',
+        content: `${SITE_URL}${OG_IMAGE}`,
+      },
+      {
+        property: 'og:url',
+        content: SITE_URL,
+      },
+      {
+        name: 'twitter:title',
+        content: HOME_TITLE,
+      },
+      {
+        name: 'twitter:description',
+        content: HOME_DESCRIPTION,
+      },
+      {
+        name: 'twitter:image',
+        content: `${SITE_URL}${OG_IMAGE}`,
+      },
+    ],
+    links: [
+      {
+        rel: 'canonical',
+        href: SITE_URL,
+      },
+    ],
+  }),
+})
 
 function Home() {
   const navigate = useNavigate()
@@ -72,10 +124,10 @@ function Home() {
 
         <CardContent>
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault()
               e.stopPropagation()
-              form.handleSubmit()
+              await form.handleSubmit()
             }}
             className="space-y-6"
           >
