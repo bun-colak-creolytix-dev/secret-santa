@@ -26,7 +26,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'Secret Santa 2024 - Create Your Holiday Gift Exchange',
       },
     ],
     links: [
