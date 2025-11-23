@@ -40,13 +40,13 @@ function Home() {
   })
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-red-50 via-green-50 to-red-50">
-      <Card className="w-full max-w-md shadow-xl border-2 border-red-200/50 bg-white/95 backdrop-blur">
-        <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-4xl md:text-5xl font-serif text-red-700 tracking-tight">
-            Secret Santa 2024
+    <div className="min-h-screen flex items-center justify-center p-4 bg-accent/20">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center space-y-2 border-l-secondary bg-secondary/5">
+          <CardTitle className="text-4xl md:text-5xl text-primary">
+            🎅 Secret Santa 🎄
           </CardTitle>
-          <CardDescription className="text-base text-gray-600">
+          <CardDescription>
             Create a group, invite friends, and let the elves handle the
             matching.
           </CardDescription>
@@ -84,7 +84,7 @@ function Home() {
                     onBlur={field.handleBlur}
                   />
                   {field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-600">
+                    <p className="text-sm text-destructive">
                       {String(field.state.meta.errors[0])}
                     </p>
                   )}
@@ -115,7 +115,7 @@ function Home() {
                     onBlur={field.handleBlur}
                   />
                   {field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-600">
+                    <p className="text-sm text-destructive">
                       {String(field.state.meta.errors[0])}
                     </p>
                   )}
@@ -125,7 +125,7 @@ function Home() {
 
             <Button
               type="submit"
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+              className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold py-6 shadow-lg hover:shadow-xl transition-all"
               disabled={form.state.isSubmitting}
             >
               {form.state.isSubmitting
