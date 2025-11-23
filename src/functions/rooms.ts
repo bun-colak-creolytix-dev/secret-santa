@@ -8,6 +8,7 @@ import { eq, and } from 'drizzle-orm'
 // Input validation schema
 const createRoomSchema = z.object({
   name: z.string().min(3, 'Room name must be at least 3 characters'),
+  organizerName: z.string().min(2, 'Name must be at least 2 characters'),
   organizerEmail: z.email('Please enter a valid email address'),
 })
 
@@ -22,8 +23,9 @@ export const createRoom = createServerFn({ method: 'POST' }).handler(
     // Validate the input
     const validated = createRoomSchema.parse(data)
 
-    // Generate a unique room ID
+    // Generate a unique room ID and admin key
     const roomId = nanoid(10)
+    const adminKey = nanoid(32)
 
     // Insert the room into the database
     const [newRoom] = await db
@@ -31,14 +33,26 @@ export const createRoom = createServerFn({ method: 'POST' }).handler(
       .values({
         id: roomId,
         name: validated.name,
+        organizerName: validated.organizerName,
         organizerEmail: validated.organizerEmail,
+        adminKey: adminKey,
       })
       .returning()
+
+    // Auto-add the creator as a participant
+    await db.insert(participants).values({
+      roomId: roomId,
+      name: validated.organizerName,
+      email: validated.organizerEmail,
+      note: null,
+    })
 
     return {
       id: newRoom.id,
       name: newRoom.name,
+      organizerName: newRoom.organizerName,
       organizerEmail: newRoom.organizerEmail,
+      adminKey: newRoom.adminKey,
     }
   },
 )
@@ -81,8 +95,10 @@ export const getRoomWithParticipants = createServerFn({ method: 'GET' }).handler
       room: {
         id: room.id,
         name: room.name,
+        organizerName: room.organizerName,
         organizerEmail: room.organizerEmail,
         isDrawn: room.isDrawn,
+        adminKey: room.adminKey,
       },
       participants: roomParticipants.map((p) => ({
         id: p.id,
@@ -145,6 +161,64 @@ export const joinRoom = createServerFn({ method: 'POST' }).handler(
       name: newParticipant.name,
       email: newParticipant.email,
       note: newParticipant.note,
+    }
+  },
+)
+
+// Input validation schema for admin access
+const getAdminRoomSchema = z.object({
+  roomId: z.string().min(1, 'Room ID is required'),
+  adminKey: z.string().min(1, 'Admin key is required'),
+})
+
+export type GetAdminRoomInput = z.infer<typeof getAdminRoomSchema>
+
+// Server function to verify admin access and get room data
+export const getAdminRoom = createServerFn({ method: 'GET' }).handler(
+  async (ctx) => {
+    // @ts-expect-error - TanStack Start types issue
+    const data = ctx.data as GetAdminRoomInput
+
+    // Validate the input
+    const validated = getAdminRoomSchema.parse(data)
+
+    // Fetch the room and verify admin key
+    const [room] = await db
+      .select()
+      .from(rooms)
+      .where(
+        and(
+          eq(rooms.id, validated.roomId),
+          eq(rooms.adminKey, validated.adminKey),
+        ),
+      )
+      .limit(1)
+
+    if (!room) {
+      throw new Error('Invalid room or admin key')
+    }
+
+    // Fetch all participants for this room
+    const roomParticipants = await db
+      .select()
+      .from(participants)
+      .where(eq(participants.roomId, validated.roomId))
+      .orderBy(participants.createdAt)
+
+    return {
+      room: {
+        id: room.id,
+        name: room.name,
+        organizerName: room.organizerName,
+        organizerEmail: room.organizerEmail,
+        isDrawn: room.isDrawn,
+      },
+      participants: roomParticipants.map((p) => ({
+        id: p.id,
+        name: p.name,
+        email: p.email,
+        note: p.note,
+      })),
     }
   },
 )

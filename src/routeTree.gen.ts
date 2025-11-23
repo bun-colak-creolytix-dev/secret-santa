@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RoomIdRouteImport } from './routes/room/$id'
+import { Route as RoomIdXAdminKeyRouteImport } from './routes/room/$id.x.$adminKey'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,39 @@ const RoomIdRoute = RoomIdRouteImport.update({
   path: '/room/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RoomIdXAdminKeyRoute = RoomIdXAdminKeyRouteImport.update({
+  id: '/x/$adminKey',
+  path: '/x/$adminKey',
+  getParentRoute: () => RoomIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/room/$id': typeof RoomIdRoute
+  '/room/$id': typeof RoomIdRouteWithChildren
+  '/room/$id/x/$adminKey': typeof RoomIdXAdminKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/room/$id': typeof RoomIdRoute
+  '/room/$id': typeof RoomIdRouteWithChildren
+  '/room/$id/x/$adminKey': typeof RoomIdXAdminKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/room/$id': typeof RoomIdRoute
+  '/room/$id': typeof RoomIdRouteWithChildren
+  '/room/$id/x/$adminKey': typeof RoomIdXAdminKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/room/$id'
+  fullPaths: '/' | '/room/$id' | '/room/$id/x/$adminKey'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/room/$id'
-  id: '__root__' | '/' | '/room/$id'
+  to: '/' | '/room/$id' | '/room/$id/x/$adminKey'
+  id: '__root__' | '/' | '/room/$id' | '/room/$id/x/$adminKey'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  RoomIdRoute: typeof RoomIdRoute
+  RoomIdRoute: typeof RoomIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +74,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RoomIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/room/$id/x/$adminKey': {
+      id: '/room/$id/x/$adminKey'
+      path: '/x/$adminKey'
+      fullPath: '/room/$id/x/$adminKey'
+      preLoaderRoute: typeof RoomIdXAdminKeyRouteImport
+      parentRoute: typeof RoomIdRoute
+    }
   }
 }
 
+interface RoomIdRouteChildren {
+  RoomIdXAdminKeyRoute: typeof RoomIdXAdminKeyRoute
+}
+
+const RoomIdRouteChildren: RoomIdRouteChildren = {
+  RoomIdXAdminKeyRoute: RoomIdXAdminKeyRoute,
+}
+
+const RoomIdRouteWithChildren =
+  RoomIdRoute._addFileChildren(RoomIdRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  RoomIdRoute: RoomIdRoute,
+  RoomIdRoute: RoomIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

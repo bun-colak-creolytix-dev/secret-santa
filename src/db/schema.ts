@@ -4,7 +4,9 @@ import { sql } from 'drizzle-orm'
 export const rooms = sqliteTable('rooms', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
+  organizerName: text('organizer_name'),
   organizerEmail: text('organizer_email').notNull(),
+  adminKey: text('admin_key'),
   isDrawn: integer('is_drawn', { mode: 'boolean' }).notNull().default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(
     sql`(unixepoch())`,

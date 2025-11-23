@@ -20,6 +20,7 @@ function Home() {
   const form = useForm({
     defaultValues: {
       name: '',
+      organizerName: '',
       organizerEmail: '',
     },
     onSubmit: async ({ value }) => {
@@ -28,11 +29,28 @@ function Home() {
           // @ts-ignore - TanStack Start types issue
           data: {
             name: value.name,
+            organizerName: value.organizerName,
             organizerEmail: value.organizerEmail,
           },
         })
-        // Navigate to the newly created room
-        await navigate({ to: `/room/${room.id}` })
+        
+        // Save creator's participation to localStorage
+        try {
+          const rooms = JSON.parse(
+            localStorage.getItem('secretSanta_rooms') || '[]',
+          )
+          rooms.push({
+            roomId: room.id,
+            email: value.organizerEmail,
+            name: value.organizerName,
+          })
+          localStorage.setItem('secretSanta_rooms', JSON.stringify(rooms))
+        } catch (error) {
+          console.error('Failed to save to localStorage:', error)
+        }
+        
+        // Navigate to the admin page with the admin key
+        await navigate({ to: `/room/${room.id}/x/${room.adminKey}` })
       } catch (error) {
         console.error('Failed to create room:', error)
       }
@@ -79,6 +97,37 @@ function Home() {
                     id="name"
                     type="text"
                     placeholder="e.g., Acme Design Team"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-destructive">
+                      {String(field.state.meta.errors[0])}
+                    </p>
+                  )}
+                </div>
+              )}
+            </form.Field>
+
+            <form.Field
+              name="organizerName"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value || value.length < 2) {
+                    return 'Name must be at least 2 characters'
+                  }
+                  return undefined
+                },
+              }}
+            >
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="organizerName">Your Name</Label>
+                  <Input
+                    id="organizerName"
+                    type="text"
+                    placeholder="e.g., Santa Claus"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
