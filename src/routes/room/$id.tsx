@@ -41,7 +41,7 @@ function RoomPage() {
 	}
 
 	return (
-		<div className="min-h-screen p-4 bg-accent/20">
+		<div className="flex-1 p-4 bg-accent/20">
 			<div className="max-w-4xl mx-auto py-8 space-y-6">
 				{/* Header */}
 				<div className="text-center space-y-2">

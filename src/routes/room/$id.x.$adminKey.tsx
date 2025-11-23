@@ -43,7 +43,7 @@ function AdminRoomPage() {
 	// If loader returned null, the admin key is invalid
 	if (!loaderData) {
 		return (
-			<div className="min-h-screen flex items-center justify-center p-4 bg-accent/20">
+			<div className="flex-1 flex items-center justify-center p-4 bg-accent/20">
 				<Card className="w-full max-w-md">
 					<CardHeader>
 						<CardTitle className="text-2xl text-destructive">
@@ -73,7 +73,7 @@ function AdminRoomPage() {
 	};
 
 	return (
-		<div className="min-h-screen p-4 bg-accent/20">
+		<div className="flex-1 p-4 bg-accent/20">
 			<div className="max-w-4xl mx-auto py-8 space-y-6">
 				{/* Participants List Card */}
 				<ParticipantList

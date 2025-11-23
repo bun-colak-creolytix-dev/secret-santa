@@ -59,10 +59,10 @@ function Home() {
 	});
 
 	return (
-		<div className="min-h-screen flex items-center justify-center p-4 bg-accent/20">
+		<div className="mt-12 flex items-center justify-center p-4 bg-accent/20">
 			<Card className="w-full max-w-md">
 				<CardHeader className="text-center space-y-2 border-l-secondary bg-secondary/5">
-					<CardTitle className="text-4xl md:text-5xl text-primary">
+					<CardTitle className="text-4xl text-primary">
 						🎅 Secret Santa 🎄
 					</CardTitle>
 					<CardDescription>
