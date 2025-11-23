@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,9 +9,9 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { getAdminRoom } from '@/functions/rooms'
+import { getAdminRoom, drawNames } from '@/functions/rooms'
 import { toast } from 'sonner'
-import { Share2, Sparkles } from 'lucide-react'
+import { Share2, Sparkles, ArrowRight } from 'lucide-react'
 
 export const Route = createFileRoute('/room/$id/x/$adminKey')({
   component: AdminRoomPage,
@@ -30,10 +30,12 @@ export const Route = createFileRoute('/room/$id/x/$adminKey')({
 })
 
 function AdminRoomPage() {
-  const { id } = Route.useParams()
+  const { id, adminKey } = Route.useParams()
   const loaderData = Route.useLoaderData()
   const navigate = useNavigate()
+  const router = useRouter()
   const [isSharing, setIsSharing] = useState(false)
+  const [isDrawing, setIsDrawing] = useState(false)
 
   // If loader returned null, the admin key is invalid
   if (!loaderData) {
@@ -76,9 +78,38 @@ function AdminRoomPage() {
     }
   }
 
-  const handleDrawNames = () => {
-    console.log('Drawing names...')
-    toast.info('🎲 Drawing names feature coming soon!')
+  const handleDrawNames = async () => {
+    if (loaderData.participants.length < 3) {
+      toast.error('At least 3 participants are required to draw names')
+      return
+    }
+
+    if (loaderData.room.isDrawn) {
+      toast.error('Names have already been drawn for this room')
+      return
+    }
+
+    setIsDrawing(true)
+    try {
+      const result = await drawNames({
+        // @ts-ignore - TanStack Start types issue
+        data: { roomId: id, adminKey },
+      })
+
+      toast.success(
+        `🎉 ${result.message} Emails sent to ${result.participantCount} participants!`,
+      )
+
+      // Reload the page data to show updated state
+      router.invalidate()
+    } catch (error) {
+      console.error('Failed to draw names:', error)
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to draw names'
+      toast.error(`❌ ${errorMessage}`)
+    } finally {
+      setIsDrawing(false)
+    }
   }
 
   const getInitials = (name: string) => {
@@ -141,6 +172,19 @@ function AdminRoomPage() {
                             </p>
                           </div>
                         )}
+                        {loaderData.room.isDrawn && participant.assignedTo && (
+                          <div className="mt-3 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
+                            <div className="flex items-center gap-2 text-sm">
+                              <span className="text-muted-foreground">
+                                Secret Santa for:
+                              </span>
+                              <ArrowRight className="size-3 text-green-600 dark:text-green-400" />
+                              <span className="font-semibold text-green-700 dark:text-green-300">
+                                {participant.assignedTo.name}
+                              </span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -180,15 +224,38 @@ function AdminRoomPage() {
           </CardContent>
         </Card>
 
-        {/* Action Button */}
-        <Button
-          onClick={handleDrawNames}
-          className="w-full py-6 text-lg font-semibold bg-primary hover:bg-primary/90"
-          size="lg"
-        >
-          <Sparkles className="size-5 mr-2" />
-          Draw Names
-        </Button>
+        {/* Action Button or Status */}
+        {loaderData.room.isDrawn ? (
+          <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950">
+            <CardHeader>
+              <CardTitle className="text-lg text-green-700 dark:text-green-300">
+                ✅ Names Have Been Drawn!
+              </CardTitle>
+              <CardDescription className="text-green-600 dark:text-green-400">
+                All participants have been notified via email with their Secret
+                Santa assignments. You can see the assignments above.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {loaderData.participants.length < 3 && (
+              <div className="p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-700 dark:text-yellow-300">
+                ⚠️ At least 3 participants are required to draw names. Currently
+                have {loaderData.participants.length}.
+              </div>
+            )}
+            <Button
+              onClick={handleDrawNames}
+              disabled={isDrawing || loaderData.participants.length < 3}
+              className="w-full py-6 text-lg font-semibold bg-primary hover:bg-primary/90 disabled:opacity-50"
+              size="lg"
+            >
+              <Sparkles className="size-5 mr-2" />
+              {isDrawing ? 'Drawing Names...' : 'Draw Names'}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

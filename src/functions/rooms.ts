@@ -4,6 +4,8 @@ import { nanoid } from 'nanoid'
 import { db } from '@/db'
 import { rooms, participants } from '@/db/schema'
 import { eq, and } from 'drizzle-orm'
+import { Resend } from 'resend'
+import { env } from '@/env'
 
 // Input validation schema
 const createRoomSchema = z.object({
@@ -205,6 +207,47 @@ export const getAdminRoom = createServerFn({ method: 'GET' }).handler(
       .where(eq(participants.roomId, validated.roomId))
       .orderBy(participants.createdAt)
 
+    // If names have been drawn, also fetch assigned participant details
+    let participantsWithAssignments = roomParticipants.map((p) => ({
+      id: p.id,
+      name: p.name,
+      email: p.email,
+      note: p.note,
+      assignedToId: p.assignedToId,
+      assignedTo: undefined as { name: string; email: string } | undefined,
+    }))
+
+    if (room.isDrawn) {
+      // For each participant, fetch their assigned recipient
+      participantsWithAssignments = await Promise.all(
+        roomParticipants.map(async (p) => {
+          let assignedTo: { name: string; email: string } | undefined
+
+          if (p.assignedToId) {
+            const [assigned] = await db
+              .select({
+                name: participants.name,
+                email: participants.email,
+              })
+              .from(participants)
+              .where(eq(participants.id, p.assignedToId))
+              .limit(1)
+
+            assignedTo = assigned
+          }
+
+          return {
+            id: p.id,
+            name: p.name,
+            email: p.email,
+            note: p.note,
+            assignedToId: p.assignedToId,
+            assignedTo,
+          }
+        }),
+      )
+    }
+
     return {
       room: {
         id: room.id,
@@ -213,12 +256,147 @@ export const getAdminRoom = createServerFn({ method: 'GET' }).handler(
         organizerEmail: room.organizerEmail,
         isDrawn: room.isDrawn,
       },
-      participants: roomParticipants.map((p) => ({
-        id: p.id,
-        name: p.name,
-        email: p.email,
-        note: p.note,
-      })),
+      participants: participantsWithAssignments,
+    }
+  },
+)
+
+// Helper function: Fisher-Yates shuffle algorithm
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
+// Input validation schema for drawing names
+const drawNamesSchema = z.object({
+  roomId: z.string().min(1, 'Room ID is required'),
+  adminKey: z.string().min(1, 'Admin key is required'),
+})
+
+export type DrawNamesInput = z.infer<typeof drawNamesSchema>
+
+// Server function to draw names and assign Secret Santa pairs
+export const drawNames = createServerFn({ method: 'POST' }).handler(
+  async (ctx) => {
+    // @ts-expect-error - TanStack Start types issue
+    const data = ctx.data as DrawNamesInput
+
+    // Validate the input
+    const validated = drawNamesSchema.parse(data)
+
+    // Verify admin access and get room
+    const [room] = await db
+      .select()
+      .from(rooms)
+      .where(
+        and(
+          eq(rooms.id, validated.roomId),
+          eq(rooms.adminKey, validated.adminKey),
+        ),
+      )
+      .limit(1)
+
+    if (!room) {
+      throw new Error('Invalid room or admin key')
+    }
+
+    // Check if names have already been drawn
+    if (room.isDrawn) {
+      throw new Error('Names have already been drawn for this room')
+    }
+
+    // Fetch all participants for this room
+    const roomParticipants = await db
+      .select()
+      .from(participants)
+      .where(eq(participants.roomId, validated.roomId))
+
+    // Validate minimum participants
+    if (roomParticipants.length < 3) {
+      throw new Error(
+        'At least 3 participants are required to draw names',
+      )
+    }
+
+    // Shuffle participants using Fisher-Yates algorithm
+    const shuffled = shuffleArray(roomParticipants)
+
+    // Create circular assignment (each person gives to the next, last gives to first)
+    const assignments = shuffled.map((giver, index) => {
+      const receiverIndex = (index + 1) % shuffled.length
+      const receiver = shuffled[receiverIndex]
+      return {
+        giverId: giver.id,
+        receiverId: receiver.id,
+        giverEmail: giver.email,
+        giverName: giver.name,
+        receiverName: receiver.name,
+        receiverEmail: receiver.email,
+        receiverNote: receiver.note,
+      }
+    })
+
+    // Update database with assignments
+    await db.transaction(async (tx) => {
+      // Update each participant with their assigned recipient
+      for (const assignment of assignments) {
+        await tx
+          .update(participants)
+          .set({ assignedToId: assignment.receiverId })
+          .where(eq(participants.id, assignment.giverId))
+      }
+
+      // Mark room as drawn
+      await tx
+        .update(rooms)
+        .set({ isDrawn: true })
+        .where(eq(rooms.id, validated.roomId))
+    })
+
+    // Initialize Resend client
+    const resend = new Resend(env.RESEND_API_KEY)
+
+    // Send email to each participant with their assignment
+    const emailPromises = assignments.map(async (assignment) => {
+      const giftPreferences = assignment.receiverNote
+        ? `\n\n**Gift Preferences:**\n${assignment.receiverNote}`
+        : ''
+
+      await resend.emails.send({
+        from: 'Secret Santa <onboarding@resend.dev>',
+        to: assignment.giverEmail,
+        subject: `🎅 Secret Santa Assignment - ${room.name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #dc2626;">🎅 Secret Santa Assignment</h1>
+            <p>Hi ${assignment.giverName},</p>
+            <p>The names have been drawn for <strong>${room.name}</strong>!</p>
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h2 style="margin-top: 0; color: #059669;">You are Secret Santa for:</h2>
+              <p style="font-size: 24px; font-weight: bold; color: #1f2937; margin: 10px 0;">
+                ${assignment.receiverName}
+              </p>
+              ${giftPreferences ? `<div style="margin-top: 15px; padding: 15px; background-color: white; border-radius: 5px;">${giftPreferences.replace(/\n/g, '<br>')}</div>` : ''}
+            </div>
+            <p style="color: #6b7280; font-size: 14px;">
+              Remember: Keep it a secret! 🤫
+            </p>
+          </div>
+        `,
+      })
+    })
+
+    // Wait for all emails to be sent
+    await Promise.all(emailPromises)
+
+    return {
+      success: true,
+      message: 'Names drawn successfully and emails sent!',
+      participantCount: assignments.length,
     }
   },
 )
