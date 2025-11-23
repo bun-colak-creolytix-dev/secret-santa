@@ -17,10 +17,6 @@ import { getRoomWithParticipants, joinRoom } from '@/functions/rooms'
 import { toast } from 'sonner'
 import { Share2, CheckCircle2 } from 'lucide-react'
 
-const SITE_URL = 'https://your-domain.com'
-const OG_IMAGE = '/og-image.png'
-const SITE_NAME = 'Secret Santa'
-
 export const Route = createFileRoute('/room/$id')({
   component: RoomPage,
   loader: async ({ params }) => {
@@ -29,63 +25,6 @@ export const Route = createFileRoute('/room/$id')({
       data: { roomId: params.id },
     })
     return data
-  },
-  head: ({ loaderData, location }) => {
-    const roomName = loaderData.room.name
-    const participantCount = loaderData.participants.length
-    const roomTitle = `${roomName} - Secret Santa Exchange`
-    const roomDescription = `Join the ${roomName} Secret Santa exchange! ${participantCount} ${participantCount === 1 ? 'person has' : 'people have'} joined. Create your holiday gift exchange group and let the elves handle the matching.`
-    const roomUrl = `${SITE_URL}${location.pathname}`
-
-    return {
-      meta: [
-        {
-          title: roomTitle,
-        },
-        {
-          name: 'description',
-          content: roomDescription,
-        },
-        {
-          property: 'og:title',
-          content: roomTitle,
-        },
-        {
-          property: 'og:description',
-          content: roomDescription,
-        },
-        {
-          property: 'og:image',
-          content: `${SITE_URL}${OG_IMAGE}`,
-        },
-        {
-          property: 'og:url',
-          content: roomUrl,
-        },
-        {
-          property: 'og:type',
-          content: 'website',
-        },
-        {
-          name: 'twitter:title',
-          content: roomTitle,
-        },
-        {
-          name: 'twitter:description',
-          content: roomDescription,
-        },
-        {
-          name: 'twitter:image',
-          content: `${SITE_URL}${OG_IMAGE}`,
-        },
-      ],
-      links: [
-        {
-          rel: 'canonical',
-          href: roomUrl,
-        },
-      ],
-    }
   },
 })
 
@@ -279,10 +218,10 @@ function RoomPage() {
 
             <CardContent>
               <form
-                onSubmit={async (e) => {
+                onSubmit={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
-                  await form.handleSubmit()
+                  form.handleSubmit()
                 }}
                 className="space-y-4"
               >
@@ -370,15 +309,15 @@ function RoomPage() {
                   )}
                 </form.Field>
 
-                <Button
+                <form.Subscribe selector={state => state.isSubmitting} children={isSubmitting => <Button
                   type="submit"
                   className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold py-6"
-                  disabled={form.state.isSubmitting}
+                  disabled={isSubmitting}
                 >
-                  {form.state.isSubmitting
+                  {isSubmitting
                     ? 'Joining...'
                     : '🎁 Join the Exchange'}
-                </Button>
+                </Button>} />
               </form>
             </CardContent>
           </Card>
@@ -391,11 +330,10 @@ function RoomPage() {
             <CardDescription>
               {loaderData.participants.length === 0
                 ? 'Be the first to join!'
-                : `${loaderData.participants.length} ${
-                    loaderData.participants.length === 1
-                      ? 'person has'
-                      : 'people have'
-                  } joined so far`}
+                : `${loaderData.participants.length} ${loaderData.participants.length === 1
+                  ? 'person has'
+                  : 'people have'
+                } joined so far`}
             </CardDescription>
           </CardHeader>
 

@@ -12,58 +12,8 @@ import {
 } from '@/components/ui/card'
 import { createRoom } from '@/functions/rooms'
 
-const SITE_URL = 'https://santa.buncolak.com'
-const OG_IMAGE = '/og-image.jpg'
-const HOME_TITLE = 'Secret Santa - Create Your Holiday Gift Exchange'
-const HOME_DESCRIPTION = 'Create a Secret Santa gift exchange group, invite friends, and let the elves handle the matching. Organize your holiday gift exchange effortlessly!'
-
 export const Route = createFileRoute('/')({
-  component: Home,
-  head: () => ({
-    meta: [
-      {
-        title: HOME_TITLE,
-      },
-      {
-        name: 'description',
-        content: HOME_DESCRIPTION,
-      },
-      {
-        property: 'og:title',
-        content: HOME_TITLE,
-      },
-      {
-        property: 'og:description',
-        content: HOME_DESCRIPTION,
-      },
-      {
-        property: 'og:image',
-        content: `${SITE_URL}${OG_IMAGE}`,
-      },
-      {
-        property: 'og:url',
-        content: SITE_URL,
-      },
-      {
-        name: 'twitter:title',
-        content: HOME_TITLE,
-      },
-      {
-        name: 'twitter:description',
-        content: HOME_DESCRIPTION,
-      },
-      {
-        name: 'twitter:image',
-        content: `${SITE_URL}${OG_IMAGE}`,
-      },
-    ],
-    links: [
-      {
-        rel: 'canonical',
-        href: SITE_URL,
-      },
-    ],
-  }),
+  component: Home
 })
 
 function Home() {
@@ -85,7 +35,7 @@ function Home() {
             organizerEmail: value.organizerEmail,
           },
         })
-        
+
         // Save creator's participation to localStorage
         try {
           const rooms = JSON.parse(
@@ -100,7 +50,7 @@ function Home() {
         } catch (error) {
           console.error('Failed to save to localStorage:', error)
         }
-        
+
         // Navigate to the admin page with the admin key
         await navigate({ to: `/room/${room.id}/x/${room.adminKey}` })
       } catch (error) {
@@ -108,6 +58,9 @@ function Home() {
       }
     },
   })
+
+  console.log(form.state);
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-accent/20">
@@ -124,10 +77,10 @@ function Home() {
 
         <CardContent>
           <form
-            onSubmit={async (e) => {
+            onSubmit={(e) => {
               e.preventDefault()
               e.stopPropagation()
-              await form.handleSubmit()
+              form.handleSubmit()
             }}
             className="space-y-6"
           >
@@ -224,15 +177,15 @@ function Home() {
               )}
             </form.Field>
 
-            <Button
+            <form.Subscribe selector={state => state.isSubmitting} children={isSubmitting => <Button
               type="submit"
               className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold py-6 shadow-lg hover:shadow-xl transition-all"
-              disabled={form.state.isSubmitting}
+              disabled={isSubmitting}
             >
-              {form.state.isSubmitting
+              {isSubmitting
                 ? 'Creating...'
                 : '🎄 Create Holiday Room'}
-            </Button>
+            </Button>} />
           </form>
         </CardContent>
       </Card>

@@ -20,6 +20,7 @@ export const getRouter = () => {
         </TanstackQuery.Provider>
       )
     },
+    defaultNotFoundComponent: () => <div>Not Found</div>,
   })
 
   setupRouterSsrQueryIntegration({ router, queryClient: rqContext.queryClient })

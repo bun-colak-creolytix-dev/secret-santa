@@ -16,8 +16,8 @@ interface MyRouterContext {
   queryClient: QueryClient
 }
 
-const SITE_URL = 'https://your-domain.com'
-const OG_IMAGE = '/og-image.png'
+const SITE_URL = 'https://santa.buncolak.com'
+const OG_IMAGE = '/og-image.jpg'
 const SITE_NAME = 'Secret Santa'
 const DEFAULT_TITLE = 'Secret Santa - Create Your Holiday Gift Exchange'
 const DEFAULT_DESCRIPTION = 'Create a Secret Santa gift exchange group, invite friends, and let the elves handle the matching. Organize your holiday gift exchange effortlessly!'

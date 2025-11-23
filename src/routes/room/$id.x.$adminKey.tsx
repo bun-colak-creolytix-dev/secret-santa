@@ -21,6 +21,7 @@ export const Route = createFileRoute('/room/$id/x/$adminKey')({
         // @ts-ignore - TanStack Start types issue
         data: { roomId: params.id, adminKey: params.adminKey },
       })
+
       return data
     } catch (error) {
       // If admin key is invalid, return null to show error state
@@ -37,6 +38,8 @@ function AdminRoomPage() {
   const router = useRouter()
   const [isSharing, setIsSharing] = useState(false)
   const [isDrawing, setIsDrawing] = useState(false)
+
+
 
   // If loader returned null, the admin key is invalid
   if (!loaderData) {
