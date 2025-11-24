@@ -66,7 +66,7 @@ function AdminRoomPage() {
 		);
 	}
 
-	const participantUrl = `${location.url.split("/x")[0]}`;
+	const participantUrl = `${location.url.split("/x/")[0]}`;
 
 	const handleShare = () => {
 		shareLink(participantUrl, "🔗 Participant link copied to clipboard!");
