@@ -75,7 +75,7 @@ export function JoinRoomForm({ roomId, onJoinSuccess }: JoinRoomFormProps) {
 
 	return (
 		<Card>
-			<CardHeader className="bg-secondary/5">
+			<CardHeader>
 				<CardTitle className="text-2xl">✨ Enter the Circle</CardTitle>
 				<CardDescription>
 					Join the exchange and share your wishlist with your Secret Santa

@@ -1,7 +1,8 @@
 import { useRouter } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+import { Sparkles, TriangleAlertIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -79,10 +80,13 @@ export function DrawNamesSection({
 	return (
 		<div className="space-y-3">
 			{participantCount < 3 && (
-				<div className="p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg text-sm text-yellow-700 dark:text-yellow-300">
-					⚠️ At least 3 participants are required to draw names. Currently have{" "}
-					{participantCount}.
-				</div>
+				<Alert variant="warning">
+					<TriangleAlertIcon className="size-4" />
+					<AlertTitle>At least 3 participants are required to draw names</AlertTitle>
+					<AlertDescription>
+						Currently have {participantCount}.
+					</AlertDescription>
+				</Alert>
 			)}
 			<Button
 				onClick={handleDrawNames}

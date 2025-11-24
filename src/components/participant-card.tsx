@@ -13,7 +13,7 @@ export function ParticipantCard({
 }: ParticipantCardProps) {
 	if (variant === "simple") {
 		return (
-			<div className="flex items-center gap-3 p-3 rounded-lg bg-accent/20 hover:bg-accent/30 transition-colors">
+			<div className="flex items-center gap-3 p-3 rounded-lg bg-muted transition-colors">
 				<Avatar className="size-10 bg-primary/10">
 					<AvatarFallback className="bg-primary text-primary-foreground font-semibold">
 						{getInitials(participant.name)}
@@ -27,9 +27,9 @@ export function ParticipantCard({
 	}
 
 	return (
-		<div className="p-4 rounded-lg bg-accent/20 hover:bg-accent/30 transition-colors">
+		<div className="p-4 rounded-lg bg-muted transition-colors">
 			<div className="flex items-start gap-3">
-				<Avatar className="size-12 bg-primary/10 shrink-0">
+				<Avatar className="size-12 shrink-0">
 					<AvatarFallback className="bg-primary text-primary-foreground font-semibold">
 						{getInitials(participant.name)}
 					</AvatarFallback>
@@ -40,7 +40,7 @@ export function ParticipantCard({
 						{participant.email}
 					</p>
 					{participant.note && (
-						<div className="mt-2 p-2 bg-background/50 rounded text-sm">
+						<div className="mt-2 p-2 bg-background/20 rounded text-sm">
 							<p className="text-muted-foreground font-medium">
 								Gift preferences:
 							</p>

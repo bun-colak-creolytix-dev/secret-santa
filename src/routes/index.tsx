@@ -59,10 +59,10 @@ function Home() {
 	});
 
 	return (
-		<div className="mt-12 flex items-center justify-center p-4 bg-accent/20">
+		<div className="mt-12 flex items-center justify-center p-4">
 			<Card className="w-full max-w-md">
-				<CardHeader className="text-center space-y-2 border-l-secondary bg-secondary/5">
-					<CardTitle className="text-4xl text-primary">
+				<CardHeader className="text-center space-y-2 py-2 border-l-secondary bg-secondary/5">
+					<CardTitle className="text-4xl text-secondary-foreground">
 						🎅 Secret Santa 🎄
 					</CardTitle>
 					<CardDescription>
@@ -147,7 +147,7 @@ function Home() {
 							{(isSubmitting) => (
 								<Button
 									type="submit"
-									className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold py-6 shadow-lg hover:shadow-xl transition-all"
+									className="w-full"
 									disabled={isSubmitting}
 								>
 									{isSubmitting ? "Creating..." : "🎄 Create Holiday Room"}

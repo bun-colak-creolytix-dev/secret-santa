@@ -46,7 +46,7 @@ export function RoomFormField({
 				/>
 			)}
 			{field.state.meta.errors.length > 0 && (
-				<p className="text-sm text-destructive">
+				<p className="text-sm text-destructive font-medium">
 					{String(field.state.meta.errors[0])}
 				</p>
 			)}

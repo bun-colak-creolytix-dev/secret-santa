@@ -1,3 +1,4 @@
+import { ParticipantCard } from "@/components/participant-card";
 import {
 	Card,
 	CardContent,
@@ -5,7 +6,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { ParticipantCard } from "@/components/participant-card";
 import type { Participant } from "@/types/room";
 
 interface ParticipantListProps {
@@ -34,7 +34,7 @@ export function ParticipantList({
 
 	return (
 		<Card>
-			<CardHeader className="bg-accent/5">
+			<CardHeader>
 				<CardTitle className="text-2xl">{title}</CardTitle>
 				<CardDescription>{description || defaultDescription}</CardDescription>
 			</CardHeader>

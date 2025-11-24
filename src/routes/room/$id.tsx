@@ -41,11 +41,11 @@ function RoomPage() {
 	}
 
 	return (
-		<div className="flex-1 p-4 bg-accent/20">
+		<div className="flex-1 p-4">
 			<div className="max-w-4xl mx-auto py-8 space-y-6">
 				{/* Header */}
 				<div className="text-center space-y-2">
-					<h1 className="text-4xl md:text-5xl font-bold text-primary">
+					<h1 className="text-4xl md:text-5xl font-bold text-primary-foreground">
 						🎅 {loaderData.room.name} 🎄
 					</h1>
 					<p className="text-muted-foreground">
@@ -53,7 +53,6 @@ function RoomPage() {
 					</p>
 				</div>
 
-				{/* Join Form Card or Already Joined Message */}
 				{hasJoined && userParticipation ? (
 					<ParticipationStatus participation={userParticipation} />
 				) : (
@@ -73,7 +72,6 @@ function RoomPage() {
 				<Button
 					onClick={handleShare}
 					disabled={isSharing}
-					variant="outline"
 					className="w-full py-6 text-lg font-semibold"
 				>
 					<Share2 className="size-5 mr-2" />

@@ -43,7 +43,7 @@ function AdminRoomPage() {
 	// If loader returned null, the admin key is invalid
 	if (!loaderData) {
 		return (
-			<div className="flex-1 flex items-center justify-center p-4 bg-accent/20">
+			<div className="flex-1 flex items-center justify-center p-4">
 				<Card className="w-full max-w-md">
 					<CardHeader>
 						<CardTitle className="text-2xl text-destructive">
@@ -73,7 +73,7 @@ function AdminRoomPage() {
 	};
 
 	return (
-		<div className="flex-1 p-4 bg-accent/20">
+		<div className="flex-1 p-4">
 			<div className="max-w-4xl mx-auto py-8 space-y-6">
 				{/* Participants List Card */}
 				<ParticipantList
@@ -92,7 +92,7 @@ function AdminRoomPage() {
 				/>
 
 				{/* Participant Link Display */}
-				<Card className="border-primary/20 bg-primary/5">
+				<Card className="border-primary">
 					<CardHeader>
 						<CardTitle className="text-lg">Participant Link</CardTitle>
 						<CardDescription>
@@ -105,7 +105,7 @@ function AdminRoomPage() {
 								type="text"
 								value={participantUrl}
 								readOnly
-								className="flex-1 px-3 py-2 bg-background border border-input rounded-md text-sm font-mono"
+								className="flex-1 px-3 py-2 bg-background text-primary-foreground border border-input rounded-md text-sm font-mono"
 								onClick={(e) => e.currentTarget.select()}
 							/>
 							<Button
