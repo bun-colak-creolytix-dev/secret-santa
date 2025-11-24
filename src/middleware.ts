@@ -15,24 +15,16 @@ class RateLimitError extends Error {
 }
 
 // Initialize Redis client if credentials are available
-const redis =
-	env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN
-		? new Redis({
-				url: env.UPSTASH_REDIS_REST_URL,
-				token: env.UPSTASH_REDIS_REST_TOKEN,
-			})
-		: null;
+const redis = new Redis({
+	url: env.UPSTASH_REDIS_REST_URL,
+	token: env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 const RATE_LIMIT_MAX_REQUESTS = 10;
 const RATE_LIMIT_WINDOW_SECONDS = 60;
 
 export const rateLimitMiddleware = createMiddleware().server(
 	async ({ request, next }) => {
-		if (!redis) {
-			console.log("No Redis configured, skipping rate limiting");
-			return next();
-		}
-
 		const url = new URL(request.url);
 		const method = request.method;
 		const pathname = url.pathname;
@@ -49,7 +41,9 @@ export const rateLimitMiddleware = createMiddleware().server(
 
 			// Check if rate limit exceeded
 			if (count > RATE_LIMIT_MAX_REQUESTS) {
-				const error = new RateLimitError("Rate limit exceeded. Please try again later.");
+				const error = new RateLimitError(
+					"Rate limit exceeded. Please try again later.",
+				);
 				error.status = 429;
 				error.headers = {
 					"Content-Type": "application/json",
