@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { participants, rooms } from "@/db/schema";
 import { env } from "@/env";
+import { rateLimitMiddleware } from "@/middleware";
 
 // Input validation schema
 const createRoomSchema = z.object({
@@ -18,6 +19,7 @@ export type CreateRoomInput = z.infer<typeof createRoomSchema>;
 
 // Server function to create a room
 export const createRoom = createServerFn({ method: "POST" })
+	.middleware([rateLimitMiddleware])
 	.inputValidator(createRoomSchema)
 	.handler(async (ctx) => {
 		const validated = ctx.data;

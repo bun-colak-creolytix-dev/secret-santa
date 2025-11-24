@@ -3,9 +3,10 @@ import { z } from "zod";
 
 export const env = createEnv({
 	server: {
-		DATABASE_URL: z.string().optional(),
-		SERVER_URL: z.url().optional(),
-		RESEND_API_KEY: z.string().optional(),
+		DATABASE_URL: z.string(),
+		RESEND_API_KEY: z.string(),
+		UPSTASH_REDIS_REST_URL: z.url(),
+		UPSTASH_REDIS_REST_TOKEN: z.string(),
 	},
 
 	/**
@@ -21,8 +22,14 @@ export const env = createEnv({
 	/**
 	 * What object holds the environment variables at runtime. This is usually
 	 * `process.env` or `import.meta.env`.
+	 * 
+	 * In Vite, server-side variables are in `process.env` and client-side
+	 * variables (with VITE_ prefix) are in `import.meta.env`. We merge both.
 	 */
-	runtimeEnv: import.meta.env,
+	runtimeEnv: {
+		...process.env,
+		...import.meta.env,
+	},
 
 	/**
 	 * By default, this library will feed the environment variables directly to
