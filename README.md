@@ -1,328 +1,170 @@
-Welcome to your new TanStack app! 
+# Secret Santa 🎅
 
-# Getting Started
+A modern, full-stack web application for organizing Secret Santa gift exchanges. Create rooms, invite friends, and let the app handle random name assignments with automatic email notifications.
 
-To run this application:
+## ✨ Features
 
+- **🎁 Easy Room Creation** - Create a Secret Santa room in seconds with just a name and email
+- **👥 Participant Management** - Invite friends via shareable links (no login required for participants)
+- **🎲 Random Name Drawing** - Secure Fisher-Yates shuffle algorithm ensures fair random assignments
+- **📧 Email Notifications** - Automatic email delivery when names are drawn, including gift preferences
+- **🔐 Admin Access** - Secure admin view with unique admin keys for room organizers
+- **💾 Local Storage** - Tracks your participation across rooms using browser storage
+- **🎨 Modern UI** - Beautiful, responsive interface built with shadcn/ui and Tailwind CSS
+- **🌓 Dark Mode** - Built-in theme support with light/dark mode toggle
+
+## 🛠️ Tech Stack
+
+- **Framework**: [TanStack Start](https://tanstack.com/start) (React 19 + Full-stack)
+- **Routing**: [TanStack Router](https://tanstack.com/router)
+- **Database**: [Turso](https://turso.tech/) (SQLite) with [Drizzle ORM](https://orm.drizzle.team/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) v4
+- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
+- **Email**: [Resend](https://resend.com/)
+- **Rate Limiting**: [Upstash Redis](https://upstash.com/)
+- **Form Handling**: [TanStack Form](https://tanstack.com/form)
+- **State Management**: [TanStack Query](https://tanstack.com/query)
+- **Code Quality**: [Biome](https://biomejs.dev/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [Bun](https://bun.sh/) (recommended) or Node.js 18+
+- A [Turso](https://turso.tech/) database account
+- A [Resend](https://resend.com/) API key for email functionality
+- An [Upstash Redis](https://upstash.com/) instance for rate limiting
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd secret-santa
+```
+
+2. Install dependencies:
 ```bash
 bun install
-bun --bun run start
 ```
 
-# Building For Production
+3. Set up environment variables:
+Create a `.env` file in the root directory with the following variables:
 
-To build this application for production:
+```env
+# Database (Turso)
+DATABASE_URL=libsql://your-turso-database-url
+
+# Email (Resend)
+RESEND_API_KEY=re_your_resend_api_key
+
+# Rate Limiting (Upstash Redis)
+UPSTASH_REDIS_REST_URL=https://your-redis-instance.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your_redis_token
+
+# Optional: App Title
+VITE_APP_TITLE=Secret Santa
+```
+
+4. Run database migrations:
+```bash
+bun run db:push
+```
+
+5. Start the development server:
+```bash
+bun run dev
+```
+
+The application will be available at `http://localhost:3000`.
+
+## 📜 Available Scripts
+
+- `bun run dev` - Start the development server
+- `bun run build` - Build for production
+- `bun run serve` - Preview production build
+- `bun run test` - Run tests
+- `bun run format` - Format code with Biome
+- `bun run lint` - Lint code with Biome
+- `bun run check` - Run all Biome checks (format + lint)
+- `bun run db:generate` - Generate database migrations
+- `bun run db:migrate` - Run database migrations
+- `bun run db:push` - Push schema changes to database
+- `bun run db:pull` - Pull schema from database
+- `bun run db:studio` - Open Drizzle Studio
+
+## 📁 Project Structure
+
+```
+secret-santa/
+├── src/
+│   ├── components/          # React components
+│   │   ├── ui/             # shadcn/ui components
+│   │   └── ...             # Feature components
+│   ├── db/                 # Database configuration
+│   │   ├── index.ts        # Database connection
+│   │   └── schema.ts       # Drizzle schema definitions
+│   ├── functions/          # Server functions (API routes)
+│   ├── hooks/              # Custom React hooks
+│   ├── integrations/       # Third-party integrations
+│   ├── lib/                # Utility functions and constants
+│   ├── routes/             # TanStack Router routes
+│   ├── types/              # TypeScript type definitions
+│   └── middleware.ts       # Server middleware (rate limiting)
+├── drizzle/                # Database migrations
+├── public/                 # Static assets
+└── package.json
+```
+
+## 🎯 How It Works
+
+1. **Create a Room**: An organizer creates a Secret Santa room with a name and their contact information
+2. **Share the Link**: The organizer shares the participant link with friends
+3. **Join the Room**: Participants join by entering their name and email (no account required)
+4. **Draw Names**: Once everyone has joined (minimum 3 participants), the organizer can draw names
+5. **Automatic Assignment**: The app randomly assigns each participant to another using a circular assignment algorithm
+6. **Email Notifications**: Each participant receives an email with their Secret Santa assignment and any gift preferences
+
+## 🔒 Security Features
+
+- **Admin Keys**: Each room has a unique admin key for organizer access
+- **Rate Limiting**: API endpoints are protected with Redis-based rate limiting
+- **Input Validation**: All user inputs are validated using Zod schemas
+- **Email Verification**: Prevents duplicate email addresses in the same room
+
+## 🎨 UI Components
+
+This project uses [shadcn/ui](https://ui.shadcn.com/) for UI components. To add new components:
 
 ```bash
-bun --bun run build
+pnpx shadcn@latest add <component-name>
 ```
 
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
-
-```bash
-bun --bun run test
-```
-
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-
-## Linting & Formatting
-
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
-
-
-```bash
-bun --bun run lint
-bun --bun run format
-bun --bun run check
-```
-
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
-
-```bash
-pnpx shadcn@latest add button
-```
-
-
-## T3Env
-
-- You can use T3Env to add type safety to your environment variables.
-- Add Environment variables to the `src/env.mjs` file.
-- Use the environment variables in your code.
-
-### Usage
-
-```ts
-import { env } from "@/env";
-
-console.log(env.VITE_APP_TITLE);
-```
-
-
-
-
-
-
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add another a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
-
-```bash
-bun install @tanstack/react-query @tanstack/react-query-devtools
-```
-
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
-
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// ...
-
-const queryClient = new QueryClient();
-
-// ...
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
-
-You can also add TanStack Query Devtools to the root route (optional).
-
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
-
-Now you can use `useQuery` to fetch your data.
-
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
-
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export default App;
-```
-
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
-
-## State Management
-
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
-
-First you need to add TanStack Store as a dependency:
-
-```bash
-bun install @tanstack/store
-```
-
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
-```
-
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+## 📝 Database Schema
+
+### Rooms
+- `id` - Unique room identifier
+- `name` - Room name
+- `organizerName` - Organizer's name
+- `organizerEmail` - Organizer's email
+- `adminKey` - Secret key for admin access
+- `isDrawn` - Whether names have been drawn
+- `createdAt` - Creation timestamp
+
+### Participants
+- `id` - Unique participant identifier
+- `roomId` - Reference to the room
+- `name` - Participant's name
+- `email` - Participant's email
+- `note` - Optional gift preferences/notes
+- `assignedToId` - Reference to assigned recipient (after drawing)
+- `createdAt` - Join timestamp
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is private and proprietary.
