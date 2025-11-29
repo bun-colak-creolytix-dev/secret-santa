@@ -6,6 +6,7 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { PostHogProvider } from "posthog-js/react";
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -109,24 +110,34 @@ function RootDocument({ children }: { readonly children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body className="min-h-screen bg-background flex flex-col">
-				<ThemeProvider>
-					<Navbar />
-					<main className="flex-1 flex flex-col">{children}</main>
-					<Toaster />
-					<TanStackDevtools
-						config={{
-							position: "bottom-right",
-						}}
-						plugins={[
-							{
-								name: "Tanstack Router",
-								render: <TanStackRouterDevtoolsPanel />,
-							},
-							TanStackQueryDevtools,
-						]}
-					/>
-					<Scripts />
-				</ThemeProvider>
+				<PostHogProvider
+					apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
+					options={{
+						api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+						defaults: '2025-05-24',
+						capture_exceptions: true, // Enable exception capture
+						debug: import.meta.env.MODE === "development",
+					}}
+				>
+					<ThemeProvider>
+						<Navbar />
+						<main className="flex-1 flex flex-col">{children}</main>
+						<Toaster />
+						<TanStackDevtools
+							config={{
+								position: "bottom-right",
+							}}
+							plugins={[
+								{
+									name: "Tanstack Router",
+									render: <TanStackRouterDevtoolsPanel />,
+								},
+								TanStackQueryDevtools,
+							]}
+						/>
+						<Scripts />
+					</ThemeProvider>
+				</PostHogProvider>
 			</body>
 		</html>
 	);
