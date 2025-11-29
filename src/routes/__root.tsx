@@ -107,7 +107,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<head>
 				<HeadContent />
 			</head>
-			<body className="min-h-screen bg-background flex flex-col dark">
+			<body className="min-h-screen bg-background flex flex-col">
 				<Navbar />
 				<main className="flex-1 flex flex-col">{children}</main>
 				<Toaster />
