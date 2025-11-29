@@ -96,6 +96,7 @@ export const getRoomWithParticipants = createServerFn({ method: "GET" })
 				organizerEmail: room.organizerEmail,
 				isDrawn: room.isDrawn,
 				adminKey: room.adminKey,
+				createdAt: room.createdAt,
 			},
 			participants: roomParticipants.map((p) => ({
 				id: p.id,
@@ -242,6 +243,7 @@ export const getAdminRoom = createServerFn({ method: "GET" })
 				organizerName: room.organizerName,
 				organizerEmail: room.organizerEmail,
 				isDrawn: room.isDrawn,
+				createdAt: room.createdAt,
 			},
 			participants: participantsWithAssignments,
 		};

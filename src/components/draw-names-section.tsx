@@ -63,9 +63,9 @@ export function DrawNamesSection({
 
 	if (isDrawn) {
 		return (
-			<Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950">
+			<Card className="border-secondary">
 				<CardHeader>
-					<CardTitle className="text-lg text-green-700 dark:text-green-300">
+					<CardTitle className="text-lg text-	 dark:text-green-300">
 						✅ Names Have Been Drawn!
 					</CardTitle>
 					<CardDescription className="text-green-600 dark:text-green-400">

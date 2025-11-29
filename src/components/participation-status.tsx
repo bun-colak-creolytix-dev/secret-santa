@@ -20,12 +20,12 @@ export function ParticipationStatus({
 		<Card className="border-primary/20">
 			<CardHeader>
 				<div className="flex items-center gap-2">
-					<CheckCircle2 className="size-6 text-secondary" />
-					<CardTitle className="text-2xl">
+					<CheckCircle2 className="size-6" />
+					<CardTitle className="lg:text-2xl text-lg">
 						✨ You're Already Participating!
 					</CardTitle>
 				</div>
-				<CardDescription className="text-secondary">
+				<CardDescription>
 					You've successfully joined this Secret Santa exchange
 				</CardDescription>
 			</CardHeader>
