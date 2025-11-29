@@ -99,7 +99,7 @@ function Home() {
 						<Card className="border-border shadow-lg bg-card animate-in slide-in-from-bottom-4 duration-500">
 							<div className="px-6 pt-2 pb-2 border-l-4 border-l-primary">
 								<CardTitle className="text-primary text-xl font-bold">
-									Start a New Exchange
+									Start a New Secret Santa
 								</CardTitle>
 								<CardDescription className="mt-2">
 									Enter the details below to create your Secret Santa room.
