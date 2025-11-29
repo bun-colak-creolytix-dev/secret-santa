@@ -8,10 +8,27 @@ import { participants, rooms } from "@/db/schema";
 import { env } from "@/env";
 import { rateLimitMiddleware } from "@/middleware";
 
+// Helper function to escape HTML entities
+function escapeHtml(text: string | null | undefined): string {
+	if (!text) return "";
+	return text
+		.replaceAll("&", "&amp;")
+		.replaceAll("<", "&lt;")
+		.replaceAll(">", "&gt;")
+		.replaceAll('"', "&quot;")
+		.replaceAll("'", "&#039;");
+}
+
 // Input validation schema
 const createRoomSchema = z.object({
-	name: z.string().min(3, "Room name must be at least 3 characters"),
-	organizerName: z.string().min(2, "Name must be at least 2 characters"),
+	name: z
+		.string()
+		.min(3, "Room name must be at least 3 characters")
+		.max(100, "Room name must be at most 100 characters"),
+	organizerName: z
+		.string()
+		.min(2, "Name must be at least 2 characters")
+		.max(100, "Name must be at most 100 characters"),
 	organizerEmail: z.email("Please enter a valid email address"),
 });
 
@@ -59,7 +76,7 @@ export const createRoom = createServerFn({ method: "POST" })
 
 // Input validation schema for getting room
 const getRoomSchema = z.object({
-	roomId: z.string().min(1, "Room ID is required"),
+	roomId: z.string().min(1, "Room ID is required").max(50, "Room ID is too long"),
 });
 
 export type GetRoomInput = z.infer<typeof getRoomSchema>;
@@ -109,16 +126,23 @@ export const getRoomWithParticipants = createServerFn({ method: "GET" })
 
 // Input validation schema for joining a room
 const joinRoomSchema = z.object({
-	roomId: z.string().min(1, "Room ID is required"),
-	name: z.string().min(2, "Name must be at least 2 characters"),
+	roomId: z.string().min(1, "Room ID is required").max(50, "Room ID is too long"),
+	name: z
+		.string()
+		.min(2, "Name must be at least 2 characters")
+		.max(100, "Name must be at most 100 characters"),
 	email: z.email("Please enter a valid email address"),
-	note: z.string().optional(),
+	note: z
+		.string()
+		.max(1000, "Note must be at most 1000 characters")
+		.optional(),
 });
 
 export type JoinRoomInput = z.infer<typeof joinRoomSchema>;
 
 // Server function to join a room
 export const joinRoom = createServerFn({ method: "POST" })
+	.middleware([rateLimitMiddleware])
 	.inputValidator(joinRoomSchema)
 	.handler(async (ctx) => {
 		const validated = ctx.data;
@@ -160,8 +184,8 @@ export const joinRoom = createServerFn({ method: "POST" })
 
 // Input validation schema for admin access
 const getAdminRoomSchema = z.object({
-	roomId: z.string().min(1, "Room ID is required"),
-	adminKey: z.string().min(1, "Admin key is required"),
+	roomId: z.string().min(1, "Room ID is required").max(50, "Room ID is too long"),
+	adminKey: z.string().min(1, "Admin key is required").max(100, "Admin key is too long"),
 });
 
 export type GetAdminRoomInput = z.infer<typeof getAdminRoomSchema>;
@@ -261,14 +285,15 @@ function shuffleArray<T>(array: T[]): T[] {
 
 // Input validation schema for drawing names
 const drawNamesSchema = z.object({
-	roomId: z.string().min(1, "Room ID is required"),
-	adminKey: z.string().min(1, "Admin key is required"),
+	roomId: z.string().min(1, "Room ID is required").max(50, "Room ID is too long"),
+	adminKey: z.string().min(1, "Admin key is required").max(100, "Admin key is too long"),
 });
 
 export type DrawNamesInput = z.infer<typeof drawNamesSchema>;
 
 // Server function to draw names and assign Secret Santa pairs
 export const drawNames = createServerFn({ method: "POST" })
+	.middleware([rateLimitMiddleware])
 	.inputValidator(drawNamesSchema)
 	.handler(async (ctx) => {
 		const validated = ctx.data;
@@ -344,25 +369,32 @@ export const drawNames = createServerFn({ method: "POST" })
 		const resend = new Resend(env.RESEND_API_KEY);
 
 		const emailPayloads = assignments.map((assignment) => {
-			const giftPreferences = assignment.receiverNote
-				? `\n\nGift Preferences:\n${assignment.receiverNote}`
+			// Escape all user input to prevent XSS
+			const escapedGiverName = escapeHtml(assignment.giverName);
+			const escapedRoomName = escapeHtml(room.name);
+			const escapedReceiverName = escapeHtml(assignment.receiverName);
+			const escapedReceiverNote = escapeHtml(assignment.receiverNote);
+
+			// Format gift preferences with proper line breaks
+			const giftPreferencesHtml = escapedReceiverNote
+				? `<div style="padding: 15px; background-color: white; border-radius: 5px; white-space: pre-wrap;">Gift Preferences:\n${escapedReceiverNote}</div>`
 				: "";
 
 			return {
 				from: "Secret Santa <noreply@santa.buncolak.com>",
 				to: assignment.giverEmail,
-				subject: `🎅 Secret Santa Assignment - ${room.name}`,
+				subject: `🎅 Secret Santa Assignment - ${escapedRoomName}`,
 				html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #dc2626;">🎅 Secret Santa Assignment</h1>
-            <p>Hi ${assignment.giverName},</p>
-            <p>The names have been drawn for <strong>${room.name}</strong>!</p>
+            <p>Hi ${escapedGiverName},</p>
+            <p>The names have been drawn for <strong>${escapedRoomName}</strong>!</p>
             <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
               <h2 style="margin-top: 0; color: #059669;">You are Secret Santa for:</h2>
               <p style="font-size: 24px; font-weight: bold; color: #1f2937; margin: 10px 0;">
-                ${assignment.receiverName}
+                ${escapedReceiverName}
               </p>
-              ${giftPreferences ? `<div style="padding: 15px; background-color: white; border-radius: 5px;">${giftPreferences.replace(/\n/g, "")}</div>` : ""}
+              ${giftPreferencesHtml}
             </div>
             <p style="color: #6b7280; font-size: 14px;">
               Remember: Keep it a secret! 🤫
