@@ -21,7 +21,6 @@ A modern, full-stack web application for organizing Secret Santa gift exchanges.
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) v4
 - **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
 - **Email**: [Resend](https://resend.com/)
-- **Rate Limiting**: [Upstash Redis](https://upstash.com/)
 - **Form Handling**: [TanStack Form](https://tanstack.com/form)
 - **State Management**: [TanStack Query](https://tanstack.com/query)
 - **Code Quality**: [Biome](https://biomejs.dev/)
@@ -34,7 +33,6 @@ A modern, full-stack web application for organizing Secret Santa gift exchanges.
 - [Bun](https://bun.sh/) (recommended) or Node.js 18+
 - A [Turso](https://turso.tech/) database account
 - A [Resend](https://resend.com/) API key for email functionality
-- An [Upstash Redis](https://upstash.com/) instance for rate limiting
 
 ### Installation
 
@@ -58,10 +56,6 @@ DATABASE_URL=libsql://your-turso-database-url
 
 # Email (Resend)
 RESEND_API_KEY=re_your_resend_api_key
-
-# Rate Limiting (Upstash Redis)
-UPSTASH_REDIS_REST_URL=https://your-redis-instance.upstash.io
-UPSTASH_REDIS_REST_TOKEN=your_redis_token
 
 # Optional: App Title
 VITE_APP_TITLE=Secret Santa
@@ -110,8 +104,7 @@ secret-santa/
 │   ├── integrations/       # Third-party integrations
 │   ├── lib/                # Utility functions and constants
 │   ├── routes/             # TanStack Router routes
-│   ├── types/              # TypeScript type definitions
-│   └── middleware.ts       # Server middleware (rate limiting)
+│   └── types/              # TypeScript type definitions
 ├── drizzle/                # Database migrations
 ├── public/                 # Static assets
 └── package.json
@@ -129,7 +122,6 @@ secret-santa/
 ## 🔒 Security Features
 
 - **Admin Keys**: Each room has a unique admin key for organizer access
-- **Rate Limiting**: API endpoints are protected with Redis-based rate limiting
 - **Input Validation**: All user inputs are validated using Zod schemas
 - **Email Verification**: Prevents duplicate email addresses in the same room
 
