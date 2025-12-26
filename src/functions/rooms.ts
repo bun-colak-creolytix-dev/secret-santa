@@ -6,7 +6,6 @@ import { z } from "zod";
 import { db } from "@/db";
 import { participants, rooms } from "@/db/schema";
 import { env } from "@/env";
-import { rateLimitMiddleware } from "@/middleware";
 
 // Helper function to escape HTML entities
 function escapeHtml(text: string | null | undefined): string {
@@ -36,7 +35,6 @@ export type CreateRoomInput = z.infer<typeof createRoomSchema>;
 
 // Server function to create a room
 export const createRoom = createServerFn({ method: "POST" })
-	.middleware([rateLimitMiddleware])
 	.inputValidator(createRoomSchema)
 	.handler(async (ctx) => {
 		const validated = ctx.data;
@@ -142,7 +140,6 @@ export type JoinRoomInput = z.infer<typeof joinRoomSchema>;
 
 // Server function to join a room
 export const joinRoom = createServerFn({ method: "POST" })
-	.middleware([rateLimitMiddleware])
 	.inputValidator(joinRoomSchema)
 	.handler(async (ctx) => {
 		const validated = ctx.data;
@@ -293,7 +290,6 @@ export type DrawNamesInput = z.infer<typeof drawNamesSchema>;
 
 // Server function to draw names and assign Secret Santa pairs
 export const drawNames = createServerFn({ method: "POST" })
-	.middleware([rateLimitMiddleware])
 	.inputValidator(drawNamesSchema)
 	.handler(async (ctx) => {
 		const validated = ctx.data;

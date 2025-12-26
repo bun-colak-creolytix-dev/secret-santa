@@ -5,8 +5,6 @@ export const env = createEnv({
 	server: {
 		DATABASE_URL: z.string(),
 		RESEND_API_KEY: z.string(),
-		UPSTASH_REDIS_REST_URL: z.url(),
-		UPSTASH_REDIS_REST_TOKEN: z.string(),
 	},
 
 	/**
